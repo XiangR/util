@@ -25,6 +25,10 @@ import com.amazonaws.services.s3.transfer.Upload;
  * @author xiangR
  * @date 2017年7月28日上午9:47:22
  *
+ *       Amazon AWS 的简单使用
+ *       AWS 是一个云盘，在上传较多图片时可以申请其账号，将文件上传到AWS中进行保存，在减少服务器的储存压力
+ *       最后文件需要以 http://honghuworld.s3.amazonaws.com/photopath 形式进行加载
+ * 
  */
 public class AmazonAWSUtility {
 
