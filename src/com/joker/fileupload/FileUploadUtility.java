@@ -124,6 +124,49 @@ public class FileUploadUtility {
 	}
 
 	/**
+	 * 支持上传文件到UEditor
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public Object raidersPhotoUpload(HttpServletRequest request) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			if (!(request instanceof MultipartHttpServletRequest)) {
+				map.put("success", 1);
+			} else {
+				MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+				MultipartFile file = multipartRequest.getFile("upfile");
+				String category = "raiders";
+				String name = "" + new Date().getTime() + (int) Math.ceil(Math.random() * 1000) + ".jpg";
+				if (file != null) {
+					String dstPath = RunTimeConfig.getRealPath(PhotoType.getPath(PhotoType.TEMP)) + "/" + name;
+					File dstFile = new File(dstPath);
+					// 文件已存在（上传了同名的文件）
+					if (dstFile.exists()) {
+						dstFile.delete();
+						dstFile = new File(dstPath);
+					}
+					copy(file.getInputStream(), dstFile);
+					PhotoUtility.uploadRaidersPhotoCloud(dstFile, category, null, null);
+					map.put("state", "SUCCESS");
+					// map.put("url", "photos/raiders/img/" + name);
+					map.put("url", "http://honghuworld.s3.amazonaws.com/photos/raiders/img/" + name);
+					map.put("size", file.getSize());
+					map.put("original", file.getOriginalFilename());
+					map.put("title", file.getName());
+					map.put("type", file.getContentType());
+				} else {
+					map.put("success", 1);
+				}
+			}
+		} catch (Exception e) {
+			map.put("success", 1);
+		}
+		return map;
+	}
+
+	/**
 	 * 由List 生成excel
 	 * 
 	 * @param request
@@ -148,14 +191,44 @@ public class FileUploadUtility {
 	}
 
 	/**
-	 * 上传原名文件到category目录
+	 * plupload/photo/aws
 	 * 
-	 * @param categroy
-	 * @param path
-	 * @param id
 	 * @param request
 	 * @return
 	 */
+	public Object raidersPhotoUploadCommo(HttpServletRequest request) {
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		try {
+			if (!(request instanceof MultipartHttpServletRequest)) {
+				map.put("success", 1);
+			} else {
+				MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+				MultipartFile file = multipartRequest.getFile("file");
+				String category = request.getParameter("category");
+				String name = "" + new Date().getTime() + (int) Math.ceil(Math.random() * 1000) + ".jpg";
+				if (file != null) {
+					String dstPath = RunTimeConfig.getRealPath(PhotoType.getPath(PhotoType.TEMP)) + "/" + name;
+					File dstFile = new File(dstPath);
+					// 文件已存在（上传了同名的文件）
+					if (dstFile.exists()) {
+						dstFile.delete();
+						dstFile = new File(dstPath);
+					}
+					copy(file.getInputStream(), dstFile);
+					PhotoUtility.uploadRaidersPhotoCloud(dstFile, category, null, null);
+				} else {
+					map.put("success", 1);
+				}
+				map.put("success", 0);
+				map.put("name", "http://honghuworld.s3.amazonaws.com/photos/" + category + "/img/" + name);
+			}
+		} catch (Exception e) {
+			map.put("success", 1);
+			e.printStackTrace();
+		}
+		return map;
+	}
+
 	private String uploadCommon(String categroy, String path, String id, MultipartHttpServletRequest request) {
 
 		int chunk = 0;
