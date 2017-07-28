@@ -1,6 +1,7 @@
 package com.joker.staticcommon;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -329,17 +330,6 @@ public class StringUtility {
 		}
 	}
 
-	public static String commonTeamEmailFormat(String content) {
-		if (isNullOrEmpty(content)) {
-			return content;
-		} else {
-			String result = "尊敬的用户您好:\n\n" + appendPeriod(content) + "\r\n详细内容请参考网站信息，谢谢！" + "\n\n如需关闭邮箱接收可参考：“个人中心”-->“设置”-->“账户安全” →“是否接收所在团队的活动通知”。"
-					+ "\n\nPlease don't reply directly to this automatically-generated e-mail message. To contact HongHu World, please do not reply to this message, but instead go to http://www.honghuworld.com for contact information."
-					+ "\n\n 此为系统自动邮件，请勿回复。如需联系鸿鹄世界，请访问鸿鹄世界网站  http://www.honghuworld.com 获取联系方式";
-			return result;
-		}
-	}
-
 	public static String removeNonBmpUnicode(String str) {
 		if (str == null) {
 			return null;
@@ -348,4 +338,65 @@ public class StringUtility {
 		return str;
 	}
 
+	/**
+	 * 经纬度的处理
+	 * 
+	 * @param lng
+	 *            经度
+	 * @param lat
+	 *            纬度
+	 * @return lng,lat
+	 */
+	public static String processLocation(String lng, String lat) {
+		if (isNullOrEmpty(lat) || isNullOrEmpty(lng)) {
+			return null;
+		} else {
+			return processLocation(lng) + "," + processLocation(lat);
+		}
+	}
+
+	public static String processLocation(String lat) {
+
+		String str1 = lat.substring(0, lat.indexOf(".") - 2);
+		String str2 = lat.replace(str1, "");
+
+		DecimalFormat format = new DecimalFormat("#.000000");
+		String result = String.valueOf(format.format(Double.valueOf(str1) + Double.valueOf(str2) / 60));
+		System.out.println("result: " + result);
+		return result;
+	}
+
+	/**
+	 * 根据提供的经度和纬度、以及半径，取得此半径内的最大最小经纬度
+	 * 
+	 * @param lat
+	 *            纬度
+	 * @param lon
+	 *            经度
+	 * @param raidus
+	 *            半径（米）
+	 * @return minLat, minLng, maxLat, maxLng
+	 */
+	public static double[] GetAround(double lat, double lon, int raidus) {
+
+		double PI = 3.14159265;
+
+		Double latitude = lat;
+		Double longitude = lon;
+
+		Double degree = (24901 * 1609) / 360.0;
+		double raidusMile = raidus;
+
+		Double dpmLat = 1 / degree;
+		Double radiusLat = dpmLat * raidusMile;
+		Double minLat = latitude - radiusLat;
+		Double maxLat = latitude + radiusLat;
+
+		Double mpdLng = degree * Math.cos(latitude * (PI / 180));
+		Double dpmLng = 1 / mpdLng;
+		Double radiusLng = dpmLng * raidusMile;
+		Double minLng = longitude - radiusLng;
+		Double maxLng = longitude + radiusLng;
+		return new double[] { minLat, minLng, maxLat, maxLng };
+	}
 }
