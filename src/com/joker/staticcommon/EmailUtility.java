@@ -23,12 +23,14 @@ import javax.mail.internet.MimeUtility;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+/**
+ * 
+ * @author xiangR
+ * @date 2017年7月31日上午9:57:54
+ *
+ *       发送邮件 可以添加附件
+ */
 public class EmailUtility {
-	/**
-	 * 发送邮件
-	 * 
-	 * @return 成功返回true，失败返回false
-	 */
 	static Logger logger = LogManager.getLogger(EmailUtility.class.getName());
 
 	/**
@@ -47,7 +49,8 @@ public class EmailUtility {
 	}
 
 	/**
-	 * 发送邮件附加附件
+	 * 异步发送邮件
+	 * 可附加附件
 	 * 
 	 * @param destAddress
 	 *            邮箱地址
@@ -68,6 +71,16 @@ public class EmailUtility {
 		return sendMail(mail);
 	}
 
+	/**
+	 * 同步发送邮件
+	 * 
+	 * @return 成功返回true，失败返回false
+	 */
+	public static boolean sendMailDirectly(String destAddress, String subject, String content) {
+		logger.info("sendMailDirectly");
+		return sendMailDirectly(destAddress, subject, content, null);
+	}
+
 	public static void main(String[] args) {
 		// sendMailDirectly("sunny.liu@sidlu.com", "测试", "测试内容");
 		// sendMail("xiangruimx@163.com", "测试", "测试内容");
@@ -78,15 +91,19 @@ public class EmailUtility {
 	}
 
 	/**
-	 * 发送邮件
+	 * 同步的发送邮件
+	 * 可以附加附件
 	 * 
-	 * @return 成功返回true，失败返回false
+	 * @param destAddress
+	 *            邮箱地址
+	 * @param subject
+	 *            title
+	 * @param content
+	 *            内容
+	 * @param attachment
+	 *            附件所在的文件路径
+	 * @return
 	 */
-	public static boolean sendMailDirectly(String destAddress, String subject, String content) {
-		logger.info("sendMailDirectly");
-		return sendMailDirectly(destAddress, subject, content, null);
-	}
-
 	public static boolean sendMailDirectly(String destAddress, String subject, String content, String attachment) {
 		EmailUtility.MailInfo mail = new EmailUtility.MailInfo();
 		mail.setTo(destAddress);
@@ -232,17 +249,12 @@ public class EmailUtility {
 	public static class MailInfo {
 
 		// Gmail
-		// String from = CommonRunTimeConfig.EmailConfig.from;//
-		// "notification@honghuworld.com"; 发件人
-		// String fromName = CommonRunTimeConfig.EmailConfig.fromName;// "鸿鹄世界";
-		// String host = CommonRunTimeConfig.EmailConfig.host;//
-		// "smtp.gmail.com"; smtp主机
-		// String port = CommonRunTimeConfig.EmailConfig.port;// "465"; //
-		// smtp端口
-		// String username = CommonRunTimeConfig.EmailConfig.username;//
-		// "notification@honghuworld.com"; 用户名
-		// String password = CommonRunTimeConfig.EmailConfig.password;//
-		// "kiqqhvojkuiifzao"; 密码
+		// String from = "notification@honghuworld.com"; 发件人
+		// String fromName = "鸿鹄世界";
+		// String host = "smtp.gmail.com"; smtp主机
+		// String port = "465"; // smtp端口
+		// String username = "notification@honghuworld.com"; 用户名
+		// String password = "kiqqhvojkuiifzao"; 密码
 
 		// mailgun
 		String from = "notification@mg.honghuworld.com";

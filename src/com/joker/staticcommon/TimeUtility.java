@@ -13,6 +13,19 @@ import java.util.TimeZone;
  *
  */
 public class TimeUtility {
+
+	/** 年月日时分秒(无下划线) yyyyMMddHHmmss */
+	public static final String dtLong = "yyyyMMddHHmmss";
+
+	/** 完整时间 yyyy-MM-dd HH:mm:ss */
+	public static final String simple = "yyyy-MM-dd HH:mm:ss";
+
+	/** 完整时间 yyyy-MM-dd HH:mm:ss SSS */
+	public static final String simpleMore = "yyyy-MM-dd HH:mm:ss SSS";
+
+	/** 年月日 yyyy-MM-dd */
+	public static final String dtShort = "yyyy-MM-dd";
+
 	public static String getDiffTime(Date date) {
 		String shortstring = null;
 		if (date == null)
@@ -147,6 +160,14 @@ public class TimeUtility {
 		return null;
 	}
 
+	public static String toString(Date date) {
+		return toString(simple, date);
+	}
+
+	public static String toStringMore(Date date) {
+		return toString(simpleMore, date);
+	}
+
 	public static Date toDate(String format, String date) {
 		if (!StringUtility.isNullOrEmpty(date)) {
 			SimpleDateFormat fmt = new SimpleDateFormat(format);
@@ -184,5 +205,41 @@ public class TimeUtility {
 		long time = date.getTime();
 		time = time - time % dayMills - TimeZone.getDefault().getRawOffset();
 		return new Date(time);
+	}
+
+	/**
+	 * 得到两个时间的时间间隔
+	 * 
+	 * @param dateMin
+	 * @param dateMax
+	 * @return
+	 */
+	public static String getDistanceTime(Date dateMin, Date dateMax) {
+		StringBuffer result = new StringBuffer();
+		long time1 = dateMin.getTime();
+		long time2 = dateMax.getTime();
+		long diff;
+		if (time1 < time2) {
+			diff = time2 - time1;
+		} else {
+			diff = time1 - time2;
+		}
+		long day = diff / (24 * 60 * 60 * 1000);
+		long hour = (diff / (60 * 60 * 1000) - day * 24);
+		long min = ((diff / (60 * 1000)) - day * 24 * 60 - hour * 60);
+		long sec = (diff / 1000 - day * 24 * 60 * 60 - hour * 60 * 60 - min * 60);
+		if (day > 0) {
+			result.append(day + "天");
+		}
+		if (hour > 0) {
+			result.append(hour + "小时");
+		}
+		if (min > 0) {
+			result.append(min + "分钟");
+		}
+		if (sec > 0) {
+			result.append(sec + "秒");
+		}
+		return result.toString();
 	}
 }
