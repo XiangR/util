@@ -4,6 +4,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -12,11 +13,16 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
+import org.apache.commons.io.FilenameUtils;
+
+/**
+ * 
+ * @author xiangR
+ * @date 2017年8月1日下午5:36:15
+ *
+ */
 public class ImgCutUtil {
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		ImgCutUtil.cut(115, 50, 300, 300, "c:/1.jpg", "g:/100.jpg");
 	}
@@ -52,7 +58,7 @@ public class ImgCutUtil {
 			}
 
 			is = new FileInputStream(sourcePath);
-			String fileSuffix = sourcePath.substring(sourcePath.lastIndexOf(".") + 1);
+			String fileSuffix = getFileExt(sourcePath);
 			Iterator<ImageReader> it = ImageIO.getImageReadersByFormatName(fileSuffix);
 			ImageReader reader = it.next();
 			iis = ImageIO.createImageInputStream(is);
@@ -82,7 +88,41 @@ public class ImgCutUtil {
 				iis = null;
 			}
 		}
-
 	}
 
+	private static final String JPG_HEX = "ff";
+	private static final String PNG_HEX = "89";
+	private static final String JPG_EXT = "jpg";
+	private static final String PNG_EXT = "png";
+
+	public static String getFileExt(String filePath) {
+		FileInputStream fis = null;
+		String extension = FilenameUtils.getExtension(filePath);
+		try {
+			fis = new FileInputStream(new File(filePath));
+			byte[] bs = new byte[1];
+			fis.read(bs);
+			String type = Integer.toHexString(bs[0] & 0xFF);
+			if (PNG_HEX.equals(type)) {
+				extension = PNG_EXT;
+			} else if (JPG_HEX.equals(type)) {
+				extension = JPG_EXT;
+			} else {
+				// 等待第三种type 先使用 jpg 代替
+				extension = JPG_EXT;
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (fis != null)
+					fis.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return extension;
+	}
 }
