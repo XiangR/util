@@ -242,4 +242,14 @@ public class TimeUtility {
 		}
 		return result.toString();
 	}
+
+	public static void main(String[] args) {
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar c = Calendar.getInstance();
+		c.setTime(new Date());
+		c.add(Calendar.YEAR, -1);
+		Date y = c.getTime();
+		String year = format.format(y);
+		System.out.println("过去一年：" + year);
+	}
 }
