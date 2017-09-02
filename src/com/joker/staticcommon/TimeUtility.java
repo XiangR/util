@@ -2,6 +2,9 @@ package com.joker.staticcommon;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -243,13 +246,17 @@ public class TimeUtility {
 		return result.toString();
 	}
 
-	public static void main(String[] args) {
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-		Calendar c = Calendar.getInstance();
-		c.setTime(new Date());
-		c.add(Calendar.YEAR, -1);
-		Date y = c.getTime();
-		String year = format.format(y);
-		System.out.println("过去一年：" + year);
+	public static Date DateTimeToDate(LocalDateTime localDateTime) {
+		ZoneId zone = ZoneId.systemDefault();
+		Instant instant = localDateTime == null ? LocalDateTime.now().atZone(zone).toInstant() : localDateTime.atZone(zone).toInstant();
+		Date date = Date.from(instant);
+		return date;
+	}
+
+	public static LocalDateTime DateToDateTime(Date date) {
+		ZoneId zone = ZoneId.systemDefault();
+		Instant instant = date == null ? new Date().toInstant() : date.toInstant();
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zone);
+		return localDateTime;
 	}
 }
