@@ -18,7 +18,7 @@ import com.joker.staticcommon.StringUtility;
 public class WXPayExample {
 	static Logger logger = LogManager.getLogger(WXPayExample.class.getName());
 
-	private static MyConfig config = MyConfig.getInstance();
+	private static WXPayConfigImpl config = WXPayConfigImpl.getInstance();
 	private static WXPay wxpay = new WXPay(config);
 	private static String wxNotifyUrl = "";
 

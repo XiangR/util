@@ -12,17 +12,17 @@ import org.apache.log4j.Logger;
 import com.github.wxpay.sdk.WXPayConfig;
 import com.joker.fileupload.ConfigParser;
 
-public class MyConfig implements WXPayConfig {
-	static Logger logger = LogManager.getLogger(MyConfig.class.getName());
+public class WXPayConfigImpl implements WXPayConfig {
+	static Logger logger = LogManager.getLogger(WXPayConfigImpl.class.getName());
 
 	static String APPID = ConfigParser.getPaymentProperty("appid");
 	static String KEY = ConfigParser.getPaymentProperty("key");
 	static String MCHID = ConfigParser.getPaymentProperty("mchid");
 
 	private byte[] certData;
-	private static MyConfig INSTANCE;
+	private static WXPayConfigImpl INSTANCE;
 
-	public MyConfig() {
+	public WXPayConfigImpl() {
 		logger.info(String.format("APPID -> %s, KEY -> %s, MCHID -> %s", APPID, KEY, MCHID));
 		try {
 			String certPath = "/path/to/apiclient_cert.p12";
@@ -36,11 +36,11 @@ public class MyConfig implements WXPayConfig {
 		}
 	}
 
-	public static MyConfig getInstance() {
+	public static WXPayConfigImpl getInstance() {
 		if (INSTANCE == null) {
-			synchronized (MyConfig.class) {
+			synchronized (WXPayConfigImpl.class) {
 				if (INSTANCE == null) {
-					INSTANCE = new MyConfig();
+					INSTANCE = new WXPayConfigImpl();
 				}
 			}
 		}
