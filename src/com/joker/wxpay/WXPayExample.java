@@ -20,21 +20,25 @@ public class WXPayExample {
 
 	private static WXPayConfigImpl config = WXPayConfigImpl.getInstance();
 	private static WXPay wxpay = new WXPay(config);
-	private static String wxNotifyUrl = "";
+	private static String wxNotifyUrl = "http://ispinning.cn/pay/weixinpay/notify";
 
 	public static void main(String[] args) {
-		wxPayOrderQuery("201706021019472271");
+		// wxPayOrderQuery("201706021019472271");
+		// wxPayUnifiedOrder(null, "201706021019472273", 1, null);
+		wxPayOrderClose("201706021019472273");
 	}
 
-	public static Object wxPayUnifiedOrder(HttpServletRequest request, String orderId, Integer totalFee, String tradeType) {
+	public static Object wxPayUnifiedOrder(HttpServletRequest request, String orderId, Integer totalFee, String tradeType, String openId) {
 		Map<String, String> data = new HashMap<String, String>();
-		data.put("body", "候鸟旅居-支付");
+		data.put("body", "单车");
 		data.put("out_trade_no", orderId);
 		data.put("fee_type", "CNY");
 		data.put("total_fee", totalFee.toString());// 单位为分
 		data.put("spbill_create_ip", request != null ? request.getRemoteAddr() : "123.12.12.123");
 		data.put("notify_url", wxNotifyUrl);
-		data.put("trade_type", "APP"); // 指定为APP支付
+		// data.put("trade_type", "APP"); // 指定为APP支付
+		data.put("trade_type", "JSAPI"); // 指定为JSAPI支付
+		data.put("openid", "o5ZOZw3OFC-v69Uk--ze4-h5Yd4M"); // 指定为JSAPI支付时存在
 		try {
 			Map<String, String> response = wxpay.unifiedOrder(data);
 			logger.info(response);
@@ -71,6 +75,22 @@ public class WXPayExample {
 		data.put("out_trade_no", orderId);
 		try {
 			Map<String, String> wxPayMap = wxpay.orderQuery(data);
+			logger.info(wxPayMap);
+			if (wxPayMap.get("trade_state").equals("SUCCESS") && wxPayMap.get("return_code").equals("SUCCESS") && wxPayMap.get("result_code").equals("SUCCESS")) {
+				logger.info("SUCCESS");
+				// TODO 业务处理
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void wxPayOrderClose(String orderId) {
+		Map<String, String> data = new HashMap<String, String>();
+		// data.put("out_trade_no", "201706021019472271");
+		data.put("out_trade_no", orderId);
+		try {
+			Map<String, String> wxPayMap = wxpay.closeOrder(data);
 			logger.info(wxPayMap);
 			if (wxPayMap.get("trade_state").equals("SUCCESS") && wxPayMap.get("return_code").equals("SUCCESS") && wxPayMap.get("result_code").equals("SUCCESS")) {
 				logger.info("SUCCESS");
