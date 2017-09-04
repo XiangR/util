@@ -8,18 +8,6 @@ public class TestPattern {
 
 	public static void main(String[] args) throws ParseException {
 
-		// Pattern p = Pattern.compile("([^,]+)TR");
-		// Matcher m = p.matcher("ftp://www.w3.org/TR/xhtml1/DTD/"
-		// + ",https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" +
-		// ",http://www.w3.org/HR/xhtml1/DTD/");
-		// while (m.find()) {
-		// System.out.println(m.group(1));
-		// }
-		// System.out.println(replaceCss("jajdijasbdaijdba300rpxdsadsa"));
-		// Pattern p = Pattern.compile(" ^([\\u4e00-\\u9fa5]+) ([0-9]+)号{1}
-		// ([\\u4e00-\\u9fa5]+) 和{1} \\({1} [\\u4e00-\\u9fa5]+ \\){1}");
-		// Pattern p =
-		// Pattern.compile("^([\\u4e00-\\u9fa5]+)([0-9]+)号{1}([\\u4e00-\\u9fa5]+)和{1}\\({1}[\\u4e00-\\u9fa5]+\\){1}");
 		Pattern p = Pattern.compile("([\\u4e00-\\u9fa5]+)");
 		Matcher m = p.matcher("金云 ئاسراش سارىيى");
 		// Matcher m = p.matcher("长乐西路");

@@ -2,6 +2,8 @@ package com.joker.staticcommon;
 
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -481,6 +483,29 @@ public class StringUtility {
 			if (i == chineseNumber.length() - 1) {// 遍历到最后一个字符
 				result += temp;
 			}
+		}
+		return result;
+	}
+
+	/**
+	 * 得到 <img>中的 src
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public List<String> getImgSrc(String str) {
+		// str = "<p><img src=\"photos/ueditor/m3/1504512449986244.jpg\"
+		// title=\"upfile\"
+		// alt=\"Annie.jpg\"/></p><p>具有国际一流水平的千鹤湾温泉风情小镇，以长者健康、舒心、快乐为己任，舒适高档的居住环境，卫生营养的可口美食，温暖周到的“保姆式”服务，还有强身健体、陶冶情操的各类活动，如：先进的健身器材、门球、棋牌类、音乐、歌舞、书画、垂钓等，更有为长者健康保驾护航的老年专科医院。千鹤湾还规划占地800亩的旅游景区，设有温泉浴场、机动游乐公园、欢乐水世界、农家乐、长者生活特色一条街等，是长者休闲、度假、养生、养老的绝佳选择。</p><p><img
+		// src=\"photos/ueditor/m3/1504514608338457.jpg\" title=\"upfile\"
+		// alt=\"Jennifer.jpg\"/></p>";
+		List<String> result = new ArrayList<String>();
+		Pattern p = Pattern.compile("<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>");// <img[^<>]*src=[\'\"]([0-9A-Za-z.\\/]*)[\'\"].(.*?)>");
+		Matcher m = p.matcher(str);
+		while (m.find()) {
+			System.out.println(m.group() + "-------------↓↓↓↓↓↓");
+			System.out.println(m.group(1));
+			result.add(m.group(1));
 		}
 		return result;
 	}
