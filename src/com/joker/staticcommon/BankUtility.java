@@ -1,10 +1,17 @@
 package com.joker.staticcommon;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -12,13 +19,80 @@ import com.alibaba.fastjson.JSONObject;
 public class BankUtility {
 	static Logger logger = LogManager.getLogger(BankUtility.class.getName());
 
+	static String requestUrl = "https://ccdcapi.alipay.com/validateAndCacheCardInfo.json";
+	static String imgUrl = "https://apimg.alipay.com/combo.png?d=cashier&t=";
+	static String allBanks = "https://ab.alipay.com/i/yinhang.htm";
+
 	public static void main(String[] args) {
 
 		// JSONObject jsonObject = getCardNumber("1180001714297");// 错误测试
 		// JSONObject jsonObject = getCardNumber("6217001180001714297");//
 		// 储蓄卡
-		JSONObject jsonObject = getCardNumber("4835910066821607");// 信用卡
-		logger.info(jsonObject);
+		// JSONObject jsonObject = getCardNumber("4835910066821607");// 信用卡
+		// logger.info(jsonObject);
+		getAllBanks();
+	}
+
+	public static String getAllBanks() {
+		// String info = UrlDownloader.getContent(allBanks, null);
+		try {
+			Document doc = Jsoup.connect(allBanks).timeout(10000).get();
+			Elements elementsByClass = doc.getElementsByClass("icon-box");
+			logger.info("before: " + bankNames.size());
+			if (elementsByClass.size() > 0) {
+				for (Element classElement : elementsByClass) {
+					Element element = classElement.children().get(0);
+					String bankName = StringUtility.isNullOrEmpty(element.attr("title")) ? element.html() : element.attr("title");
+					String bankUid = element.attr("class").replace("icon", "").trim();
+					bankNames.put(bankUid, bankName);
+					logger.info(bankName + " -> " + bankUid);
+					FileOperation.appendFileTextLine("f:bank.txt", bankName + " -> " + bankUid);
+				}
+			}
+			logger.info("after: " + bankNames.size());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static void getBankImg(String filePath) {
+		String realPath = RunTimeConfig.getRealPath(null);
+		logger.info(realPath);
+		filePath = filePath + "/photos/bank";
+		FileOutputStream output = null;
+		String nowUid = "";
+		try {
+			File fp = new File(filePath);
+			if (!fp.exists()) { // 由路径创建文件夹
+				fp.mkdir();
+			}
+			for (String bankUid : bankNames.keySet()) {
+				nowUid = bankUid;
+				String url = "https://apimg.alipay.com/combo.png?d=cashier&t=" + bankUid;
+				byte[] responseBody = UrlDownloader.getByteArr(url);
+				if (responseBody == null) {
+					logger.error(nowUid + "下载失败");
+					continue;
+				}
+				File storeFile = new File(filePath + "/" + nowUid + ".png");
+				if (storeFile.exists()) {
+					storeFile.delete();
+				}
+				output = new FileOutputStream(storeFile);
+				output.write(responseBody);
+			}
+		} catch (Exception ex) {
+			logger.error(nowUid + "下载失败", ex);
+		} finally {
+			try {
+				if (output != null) {
+					output.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public static JSONObject getCardNumber(String cardNumber) {

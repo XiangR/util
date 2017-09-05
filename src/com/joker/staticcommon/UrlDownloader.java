@@ -38,6 +38,7 @@ import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -57,10 +58,76 @@ public class UrlDownloader {
 	static Logger logger = LogManager.getLogger(UrlDownloader.class.getName());
 	static int TRY_COUNT = 6;
 
+	static void getBankImgError(String filePath, String bankName) {
+		FileOutputStream output = null;
+		InputStream input = null;
+		try {
+			File fp = new File(filePath);
+			if (!fp.exists()) { // 由路径创建文件夹
+				fp.mkdir();
+			}
+			HttpClient client = new HttpClient();
+			String url = "https://apimg.alipay.com/combo.png?d=cashier&t=" + bankName;
+			GetMethod method = new GetMethod(url);
+			int statusCode = client.executeMethod(method);
+			if (statusCode == HttpStatus.SC_OK) {
+				File storeFile = new File(filePath + "/" + bankName + ".png");
+				if (storeFile.exists()) {
+					storeFile.delete();
+				}
+				output = new FileOutputStream(storeFile);
+				input = method.getResponseBodyAsStream(); // 输出到文件
+				int tempByte = -1;
+				while ((tempByte = input.read()) > 0) {
+					output.write(tempByte);
+				}
+				output.write(tempByte);
+			} else {
+				logger.info(bankName + "下载失败");
+			}
+		} catch (Exception ex) {
+			logger.error(bankName + "下载失败", ex);
+		} finally {
+			try {
+				if (output != null) {
+					output.close();
+				}
+				if (input != null) {
+					input.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+
+			}
+		}
+	}
+
+	public static byte[] getByteArr(String url) {
+		HttpClient client = new HttpClient();
+		GetMethod method = null;
+		try {
+			method = new GetMethod(url);
+			int statusCode = client.executeMethod(method);
+			if (statusCode == HttpStatus.SC_OK) {
+				byte[] responseBody = method.getResponseBody();
+				return responseBody;
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			method.releaseConnection();
+		}
+		return null;
+	}
+
 	public static JSONObject getInfo(String url, Map<String, String> params) {
 		String bodystr = getContent(url, params);
-		if (!StringUtility.isNullOrEmpty(bodystr))
-			return (JSONObject) JSONObject.parse(bodystr);
+		try {
+			if (!StringUtility.isNullOrEmpty(bodystr))
+				return (JSONObject) JSONObject.parse(bodystr);
+		} catch (Exception ex) {
+			return null;
+		}
 		return null;
 	}
 
@@ -120,6 +187,39 @@ public class UrlDownloader {
 		} finally {
 			method.releaseConnection();
 		} // 执行请求
+		return null;
+	}
+
+	static void getImg(InputStream inStream) {
+		writeToDisk(readStream(inStream), "111");
+	}
+
+	private static void writeToDisk(byte[] img, String fileName) {
+		try {
+			File file = new File("f:/test/" + fileName);
+			FileOutputStream fops = new FileOutputStream(file);
+			fops.write(img);
+			fops.flush();
+			fops.close();
+			System.out.println("图片已经写入到 D 盘");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static byte[] readStream(InputStream inStream) {
+		try {
+			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			int len = 0;
+			while ((len = inStream.read(buffer)) != -1) {
+				outStream.write(buffer, 0, len);
+			}
+			inStream.close();
+			return outStream.toByteArray();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 
