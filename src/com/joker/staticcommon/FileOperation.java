@@ -187,11 +187,42 @@ public class FileOperation {
 	}
 
 	public static void main(String[] args) {
-		// getFileList("f:photos");
-		// List<String> list = readFileWithLines("f:realPath.txt");
-		// for (String str : list) {
-		// System.out.println(str);
-		// }
+		updateFileNames("f:Logos", null);
+	}
+
+	public static void updateFileNames(String parentFilePath, String index) {// 更改文件夹下所有文件的的名称
+		File file = new File(parentFilePath);
+		if (file.exists() && file.isDirectory()) {
+			File[] childFiles = file.listFiles();
+			String path = file.getAbsolutePath();
+			for (File childFile : childFiles) {
+				// 如果是文件
+				if (childFile.isFile()) {
+					String oldName = childFile.getName();
+					String newName = oldName.replace("@2x", "");
+					// String newName =
+					// oldName.substring(oldName.indexOf(index));
+					logger.info(oldName + "-> " + newName);
+					childFile.renameTo(new File(path + "\\" + newName));
+				}
+			}
+		}
+	}
+
+	public static List<String> getFileNames(String parentFilePath) {// 更改文件夹下所有文件的的名称
+		List<String> list = new ArrayList<String>();
+		File file = new File(parentFilePath);
+		if (file.exists() && file.isDirectory()) {
+			File[] childFiles = file.listFiles();
+			for (File childFile : childFiles) {
+				// 如果是文件
+				if (childFile.isFile()) {
+					String oldName = childFile.getName();
+					list.add(oldName);
+				}
+			}
+		}
+		return list;
 	}
 
 	/**

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.LogManager;
@@ -30,7 +31,8 @@ public class BankUtility {
 		// 储蓄卡
 		// JSONObject jsonObject = getCardNumber("4835910066821607");// 信用卡
 		// logger.info(jsonObject);
-		getAllBanks();
+		// getAllBanks();
+		getName();
 	}
 
 	public static String getAllBanks() {
@@ -126,6 +128,15 @@ public class BankUtility {
 			}
 		}
 		return result;
+	}
+
+	public static void getName() {
+		List<String> fileNames = FileOperation.getFileNames("f:Logos");
+		for (String name : fileNames) {
+			if (!bankNames.containsKey(name.replace(".png", ""))) {
+				logger.info(name);
+			}
+		}
 	}
 
 	static Map<String, String> bankTypes = new HashMap<String, String>() {
