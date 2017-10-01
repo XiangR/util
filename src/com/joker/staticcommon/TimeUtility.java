@@ -3,8 +3,11 @@ package com.joker.staticcommon;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -258,5 +261,17 @@ public class TimeUtility {
 		Instant instant = date == null ? new Date().toInstant() : date.toInstant();
 		LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zone);
 		return localDateTime;
+	}
+
+	public static void main(String[] args) {
+		String dateFrom = "2017-08-02";
+		String dateTo = "2017-10-09";
+		LocalDate from = LocalDate.parse(dateFrom);
+		LocalDate to = LocalDate.parse(dateTo);
+		long months = ChronoUnit.MONTHS.between(from, to) + 1;
+		for (int i = 0; i < months; i++) {
+			System.out.println(from.plus(i, ChronoUnit.MONTHS).with(TemporalAdjusters.firstDayOfMonth()));
+			System.out.println(from.plus(i, ChronoUnit.MONTHS).with(TemporalAdjusters.lastDayOfMonth()));
+		}
 	}
 }
