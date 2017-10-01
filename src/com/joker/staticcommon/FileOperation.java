@@ -53,6 +53,10 @@ public class FileOperation {
 		if (StringUtility.isNullOrEmpty(content)) {
 			return;
 		}
+		File dir = new File(fileName).getParentFile();
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
 		Writer out = null;
 		try {
 			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName, true), "UTF-8"));
@@ -234,8 +238,12 @@ public class FileOperation {
 	 *            文字
 	 */
 	public static void appendFileTextLine(String fileName, String content) {
-		if (content == null || content.length() == 0) {
+		if (StringUtility.isNullOrEmpty(content)) {
 			return;
+		}
+		File dir = new File(fileName).getParentFile();
+		if (!dir.exists()) {
+			dir.mkdirs();
 		}
 		BufferedWriter out = null;
 		try {
@@ -297,6 +305,30 @@ public class FileOperation {
 			}
 		}
 		return result;
+	}
+
+	public static void getBankImg(String filePath, byte[] responseBody) {
+		logger.info(filePath);
+		FileOutputStream output = null;
+		try {
+			if (responseBody == null) {
+			}
+			File storeFile = new File(filePath);
+			if (storeFile.exists()) {
+				storeFile.delete();
+			}
+			output = new FileOutputStream(storeFile);
+			output.write(responseBody);
+		} catch (Exception ex) {
+		} finally {
+			try {
+				if (output != null) {
+					output.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public static void exportExcel(String title, List<String> headers, List<List<String>> datas, HttpServletResponse response) {
