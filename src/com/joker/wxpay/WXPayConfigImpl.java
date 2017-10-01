@@ -1,11 +1,10 @@
 package com.joker.wxpay;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -24,15 +23,29 @@ public class WXPayConfigImpl implements WXPayConfig {
 
 	public WXPayConfigImpl() {
 		logger.info(String.format("APPID -> %s, KEY -> %s, MCHID -> %s", APPID, KEY, MCHID));
+		InputStream inputStream = null;
 		try {
-			String certPath = "/path/to/apiclient_cert.p12";
-			File file = new File(certPath);
-			InputStream certStream = new FileInputStream(file);
-			this.certData = new byte[(int) file.length()];
-			certStream.read(this.certData);
-			certStream.close();
+			// String certPath = "/path/to/apiclient_cert.p12";
+			// File file = new File(certPath);
+			// InputStream certStream = new FileInputStream(file);
+			// this.certData = new byte[(int) file.length()];
+			// certStream.read(this.certData);
+			// certStream.close();
+			String certPath = "/apiclient_cert.p12";
+			inputStream = WXPayConfigImpl.class.getResourceAsStream(certPath);
+			this.certData = IOUtils.toByteArray(inputStream);
+			logger.info(this.certData);
 		} catch (IOException e) {
 			// logger.error("初始化MyConfig 失败.", e);
+		} finally {
+			try {
+				if (inputStream != null) {
+					inputStream.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 		}
 	}
 
