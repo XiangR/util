@@ -24,12 +24,12 @@ public class quartz1 {
 	static String quartzJob4 = ConfigParser.getCommonProperty("quartzJob4");
 
 	public static void main(String[] args) {
-		@SuppressWarnings("unused")
-		quartzJob1 quartzJob1 = new quartzJob1();
-		@SuppressWarnings("unused")
-		quartzJob2 quartzJob2 = new quartzJob2();
-		@SuppressWarnings("unused")
-		quartzJob3 quartzJob3 = new quartz1().new quartzJob3();
+		// @SuppressWarnings("unused")
+		// quartzJob1 quartzJob1 = new quartzJob1();
+		// @SuppressWarnings("unused")
+		// quartzJob2 quartzJob2 = new quartzJob2();
+		// @SuppressWarnings("unused")
+		// quartzJob3 quartzJob3 = new quartz1().new quartzJob3();
 
 		new quartz1().run();
 	}
@@ -41,15 +41,17 @@ public class quartz1 {
 
 			// job 1 将每隔 10 秒执行一次
 			JobDetail job = newJob(quartzJob1.class).withIdentity("job1", "group1").build();
-			CronTrigger trigger = newTrigger().withIdentity("trigger1", "group1").withSchedule(cronSchedule("0 0 0 1 1 ?")).build();
+			// CronTrigger trigger = newTrigger().withIdentity("trigger1",
+			// "group1").withSchedule(cronSchedule("0 0 0 1 1 ?")).build();
+			CronTrigger trigger = newTrigger().withIdentity("trigger1", "group1").withSchedule(cronSchedule("0/5 * * * * ?")).build();
 			Date ft = sched.scheduleJob(job, trigger);
 			System.out.print(job.getKey() + "已被安排执行于:" + TimeUtility.toStringMore(ft));
 			System.out.println("，并且以如下重复规则重复执行:" + trigger.getCronExpression());
 
 			job = newJob(quartzJob4.class).withIdentity("job2", "group1").build();
+			trigger = newTrigger().withIdentity("trigger2", "group1").withSchedule(cronSchedule("0 0 0 * * ?")).build();
 			// trigger = newTrigger().withIdentity("trigger2",
-			// "group1").withSchedule(cronSchedule("0/3 * * * * ?")).build();
-			trigger = newTrigger().withIdentity("trigger2", "group1").withSchedule(cronSchedule(quartzJob4)).build();
+			// "group1").withSchedule(cronSchedule(quartzJob4)).build();
 			ft = sched.scheduleJob(job, trigger);
 			System.out.print(job.getKey() + "已被安排执行于:" + TimeUtility.toStringMore(ft));
 			System.out.println("，并且以如下重复规则重复执行:" + trigger.getCronExpression());
