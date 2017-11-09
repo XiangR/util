@@ -25,6 +25,7 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HostnameVerifier;
@@ -129,6 +130,43 @@ public class UrlDownloader {
 			return null;
 		}
 		return null;
+	}
+
+	public static JSONObject getInfoOkHttp(String url, String params) {
+		String bodystr = getContentOkHttp(url, params);
+		try {
+			if (!StringUtility.isNullOrEmpty(bodystr))
+				return JSONObject.parseObject(bodystr);
+		} catch (Exception ex) {
+			return null;
+		}
+		return null;
+	}
+
+	public static String getContentOkHttp(String url, String params) {
+		return post(url, params);
+	}
+
+	private static final okhttp3.MediaType CONTENT_TYPE_FORM = okhttp3.MediaType.parse("application/x-www-form-urlencoded");
+	// 分别设置Http的连接,写入,读取的超时时间
+	private static okhttp3.OkHttpClient httpClient = new okhttp3.OkHttpClient().newBuilder().connectTimeout(10, TimeUnit.SECONDS).writeTimeout(10, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS)
+			.build();
+
+	public static String post(String url, String params) {
+		okhttp3.RequestBody body = okhttp3.RequestBody.create(CONTENT_TYPE_FORM, params);
+		okhttp3.Request request = new okhttp3.Request.Builder().url(url).post(body).build();
+		return exec(request);
+	}
+
+	private static String exec(okhttp3.Request request) {
+		try {
+			okhttp3.Response response = httpClient.newCall(request).execute();
+			if (!response.isSuccessful())
+				throw new RuntimeException("Unexpected code " + response);
+			return response.body().string();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static String getContent(String url, Map<String, String> params) {
