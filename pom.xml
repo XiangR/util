@@ -201,5 +201,19 @@
 			<version>3.13</version>
 		</dependency>
 		<!-- poi excel -->
+		<!-- okhttp3 -->
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>3.6.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okio</groupId>
+			<artifactId>okio</artifactId>
+			<version>1.11.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- okhttp3 -->
 	</dependencies>
 </project>
