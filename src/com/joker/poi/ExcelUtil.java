@@ -1,18 +1,17 @@
 package com.joker.poi;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.IntStream;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import com.joker.staticcommon.FileOperation;
+import com.joker.staticcommon.TimeUtility;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
@@ -22,24 +21,71 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.joker.staticcommon.StringUtility;
 
-public class ReadExcel {
+import javax.servlet.http.HttpServletResponse;
+
+public class ExcelUtil {
+
+    static Logger logger = LogManager.getLogger(FileOperation.class.getName());
 
     static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static DecimalFormat df = new DecimalFormat("#");
+    private static final int XLS_SHEET_MAX_ROWS = 65530;
 
     public static void main(String[] args) {
+        List<List<String>> dataList = new ArrayList<>();
 
-        File file = new File("f:/test.xlsx");
-        if (!file.exists()) {
-            System.out.println("文件不存在");
-            return;
-        }
-        ReadExcel rf = new ReadExcel();
-        rf.readExcel(file);
+
+        List<String> headers = Arrays.asList("1", "2", "3", "4");
+
+        IntStream.range(0, XLS_SHEET_MAX_ROWS).forEach(k -> dataList.add(headers));
+
+        exportExcel("", headers, dataList);
     }
 
     private static Integer srcIndex = null;
     private static Integer destIndex = null;
+
+
+    public static void exportExcel(String title, List<String> headers, List<List<String>> dataList) {
+        String fileName = title + "导出.xls";
+        HSSFWorkbook wb = null;
+        try {
+            wb = new HSSFWorkbook();
+
+            HSSFSheet sheet = wb.createSheet(title + "记录");
+            // 4.创建单元格，设置值表头，设置表头居中
+            HSSFCellStyle style = wb.createCellStyle();
+            // 居中格式
+            style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+
+            // 3.在sheet中添加表头第0行，老版本poi对excel行数列数有限制short
+            HSSFRow row = sheet.createRow((int) 0);
+            HSSFCell cell;
+            for (int i = 0; i < headers.size(); ++i) {
+                cell = row.createCell(i);
+                cell.setCellValue(headers.get(i));
+                cell.setCellStyle(style);
+            }
+            for (int i = 0; i < dataList.size(); ++i) {
+                row = sheet.createRow((int) i + 1);
+                List<String> data = dataList.get(i);
+                for (int j = 0; j < data.size(); ++j) {
+                    row.createCell(j).setCellValue(data.get(j));
+                }
+            }
+            wb.write(new FileOutputStream(fileName));
+        } catch (Exception e) {
+            logger.info("=====导出excel异常====");
+        } finally {
+            if (wb != null) {
+                try {
+                    wb.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     /**
      * 读取 Excel 数据

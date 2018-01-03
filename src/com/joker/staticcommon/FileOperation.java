@@ -59,10 +59,6 @@ public class FileOperation {
         try {
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName, true), "UTF-8"));
             out.write(content);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -327,47 +323,5 @@ public class FileOperation {
         }
     }
 
-    public static void exportExcel(String title, List<String> headers, List<List<String>> datas, HttpServletResponse response) {
-        String fileName = title + "导出" + TimeUtility.toString("yyyyMMddHHmmss", new Date()) + ".xls";
-        HSSFWorkbook wb = null;
-        try {
-            wb = new HSSFWorkbook();
-            response.setContentType("application/vnd.ms-excel;charset=utf-8");
-            response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
-            HSSFSheet sheet = wb.createSheet(title + "记录");
-            // 4.创建单元格，设置值表头，设置表头居中
-            HSSFCellStyle style = wb.createCellStyle();
-            // 居中格式
-            style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
-
-            // 3.在sheet中添加表头第0行，老版本poi对excel行数列数有限制short
-            HSSFRow row = sheet.createRow((int) 0);
-            HSSFCell cell = null;
-            for (int i = 0; i < headers.size(); ++i) {
-                cell = row.createCell(i);
-                cell.setCellValue(headers.get(i));
-                cell.setCellStyle(style);
-            }
-            for (int i = 0; i < datas.size(); ++i) {
-                row = sheet.createRow((int) i + 1);
-                List<String> data = datas.get(i);
-                for (int j = 0; j < data.size(); ++j) {
-                    row.createCell(j).setCellValue(data.get(j));
-                }
-            }
-            wb.write(response.getOutputStream());
-            response.getOutputStream().close();
-        } catch (Exception e) {
-            logger.info("=====导出excel异常====");
-        } finally {
-            if (wb != null) {
-                try {
-                    wb.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
 
 }
