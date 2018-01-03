@@ -1,14 +1,11 @@
 package com.joker.poi;
 
 import java.io.*;
-import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import com.joker.staticcommon.FileOperation;
-import com.joker.staticcommon.TimeUtility;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.*;
@@ -21,11 +18,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.joker.staticcommon.StringUtility;
 
-import javax.servlet.http.HttpServletResponse;
-
 public class ExcelUtil {
 
-    static Logger logger = LogManager.getLogger(FileOperation.class.getName());
+    static Logger logger = LogManager.getLogger(ExcelUtil.class.getName());
 
     static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static DecimalFormat df = new DecimalFormat("#");
@@ -37,7 +32,7 @@ public class ExcelUtil {
 
         List<String> headers = Arrays.asList("1", "2", "3", "4");
 
-        IntStream.range(0, XLS_SHEET_MAX_ROWS).forEach(k -> dataList.add(headers));
+        IntStream.range(0, XLS_SHEET_MAX_ROWS * 2).forEach(k -> dataList.add(headers));
 
         exportExcel("", headers, dataList);
     }
@@ -47,9 +42,14 @@ public class ExcelUtil {
 
 
     public static void exportExcel(String title, List<String> headers, List<List<String>> dataList) {
-        String fileName = title + "导出.xls";
+        String fileName = title + "导出.xlsx";
+        logger.info(fileName);
         HSSFWorkbook wb = null;
         try {
+            File file = new File(fileName);
+            if (file.exists()) {
+                file.delete();
+            }
             wb = new HSSFWorkbook();
 
             HSSFSheet sheet = wb.createSheet(title + "记录");
@@ -59,7 +59,7 @@ public class ExcelUtil {
             style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
 
             // 3.在sheet中添加表头第0行，老版本poi对excel行数列数有限制short
-            HSSFRow row = sheet.createRow((int) 0);
+            HSSFRow row = sheet.createRow(0);
             HSSFCell cell;
             for (int i = 0; i < headers.size(); ++i) {
                 cell = row.createCell(i);
@@ -75,7 +75,7 @@ public class ExcelUtil {
             }
             wb.write(new FileOutputStream(fileName));
         } catch (Exception e) {
-            logger.info("=====导出excel异常====");
+            e.printStackTrace();
         } finally {
             if (wb != null) {
                 try {
