@@ -21,7 +21,7 @@ public class ConfigParser {
 
 	public static String getCommonProperty(String key) {
 		if (khcoinProperties == null) {
-			khcoinProperties = getProperties("/common.properties");
+			khcoinProperties = getProperties("/resource/common.properties");
 		}
 		return khcoinProperties.getProperty(key);
 	}
