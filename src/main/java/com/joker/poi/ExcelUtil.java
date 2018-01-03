@@ -6,15 +6,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import com.joker.enumcommon.ExcelEnum;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.*;
 
 import com.joker.staticcommon.StringUtility;
 
@@ -34,45 +31,40 @@ public class ExcelUtil {
 
         IntStream.range(0, XLS_SHEET_MAX_ROWS * 2).forEach(k -> dataList.add(headers));
 
-        exportExcel("", headers, dataList);
+        exportExcel2("", headers, dataList, ExcelEnum.XLSX);
     }
 
-    private static Integer srcIndex = null;
-    private static Integer destIndex = null;
-
-
-    public static void exportExcel(String title, List<String> headers, List<List<String>> dataList) {
-        String fileName = title + "导出.xlsx";
+    /**
+     * 导出文档
+     *
+     * @param title    导出文件名称
+     * @param headers  标题
+     * @param dataList 内容
+     */
+    public static void exportExcel2(String title, List<String> headers, List<List<String>> dataList, ExcelEnum type) {
+        String fileName = "导出" + title + "." + type.getType();
         logger.info(fileName);
-        HSSFWorkbook wb = null;
+        Workbook wb = null;
         try {
             File file = new File(fileName);
             if (file.exists()) {
                 file.delete();
             }
-            wb = new HSSFWorkbook();
-
-            HSSFSheet sheet = wb.createSheet(title + "记录");
+            wb = type == ExcelEnum.XLSX ? new XSSFWorkbook() : new HSSFWorkbook();
+            Sheet sheet = wb.createSheet(title + "记录");
             // 4.创建单元格，设置值表头，设置表头居中
-            HSSFCellStyle style = wb.createCellStyle();
+            CellStyle style = wb.createCellStyle();
             // 居中格式
             style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
-
             // 3.在sheet中添加表头第0行，老版本poi对excel行数列数有限制short
-            HSSFRow row = sheet.createRow(0);
-            HSSFCell cell;
+            Row row = sheet.createRow(0);
+            Cell cell;
             for (int i = 0; i < headers.size(); ++i) {
                 cell = row.createCell(i);
                 cell.setCellValue(headers.get(i));
                 cell.setCellStyle(style);
             }
-            for (int i = 0; i < dataList.size(); ++i) {
-                row = sheet.createRow((int) i + 1);
-                List<String> data = dataList.get(i);
-                for (int j = 0; j < data.size(); ++j) {
-                    row.createCell(j).setCellValue(data.get(j));
-                }
-            }
+            refineRow(sheet, dataList);
             wb.write(new FileOutputStream(fileName));
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,6 +78,56 @@ public class ExcelUtil {
             }
         }
     }
+
+    /**
+     * 导出文档
+     *
+     * @param title    导出文件名称
+     * @param headers  标题
+     * @param dataList 内容
+     */
+    public static void exportExcel(String title, List<String> headers, List<List<String>> dataList) {
+        String fileName = title + "导出.xlsx";
+        XSSFWorkbook wb = null;
+        try {
+            File file = new File(fileName);
+            if (file.exists()) {
+                file.delete();
+            }
+            wb = new XSSFWorkbook();
+
+            XSSFSheet sheet = wb.createSheet(title + "记录");
+            // 4.创建单元格，设置值表头，设置表头居中
+            XSSFCellStyle style = wb.createCellStyle();
+            // 居中格式
+            style.setAlignment(XSSFCellStyle.ALIGN_CENTER);
+
+            // 3.在sheet中添加表头第0行，老版本poi对excel行数列数有限制short
+            XSSFRow row = sheet.createRow(0);
+            XSSFCell cell;
+            for (int i = 0; i < headers.size(); ++i) {
+                cell = row.createCell(i);
+                cell.setCellValue(headers.get(i));
+                cell.setCellStyle(style);
+            }
+            refineRow(sheet, dataList);
+            wb.write(new FileOutputStream(fileName));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (wb != null) {
+
+                    wb.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    private static Integer srcIndex = null;
+    private static Integer destIndex = null;
 
     /**
      * 读取 Excel 数据
@@ -203,6 +245,23 @@ public class ExcelUtil {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+        }
+    }
+
+    /**
+     * 插入数据
+     *
+     * @param sheet    页面
+     * @param dataList 数据
+     */
+    private static void refineRow(Sheet sheet, List<List<String>> dataList) {
+        Row row;
+        for (int i = 0; i < dataList.size(); ++i) {
+            row = sheet.createRow(i + 1);
+            List<String> data = dataList.get(i);
+            for (int j = 0; j < data.size(); ++j) {
+                row.createCell(j).setCellValue(data.get(j));
+            }
         }
     }
 
