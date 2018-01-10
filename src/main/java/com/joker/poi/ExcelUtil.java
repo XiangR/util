@@ -15,6 +15,14 @@ import org.apache.poi.xssf.usermodel.*;
 
 import com.joker.staticcommon.StringUtility;
 
+/**
+ * excel 文件导入导出工具
+ * <p>
+ * mac 文件读取方式 -> "Users/xiangrui/.."
+ *
+ * @author xiangR
+ * @date 2018年1月10日上午9:47:11
+ */
 public class ExcelUtil {
 
     static Logger logger = LogManager.getLogger(ExcelUtil.class.getName());
@@ -24,14 +32,10 @@ public class ExcelUtil {
     private static final int XLS_SHEET_MAX_ROWS = 65530;
 
     public static void main(String[] args) {
-        List<List<String>> dataList = new ArrayList<>();
 
-
-        List<String> headers = Arrays.asList("1", "2", "3", "4");
-
-        IntStream.range(0, XLS_SHEET_MAX_ROWS * 2).forEach(k -> dataList.add(headers));
-
-        exportExcel2("", headers, dataList, ExcelEnum.XLSX);
+        String s = "/Users/xiangrui/normal/test_excel.xlsx";
+        File file = new File(s);
+        readExcel(file);
     }
 
     /**
@@ -125,7 +129,7 @@ public class ExcelUtil {
             }
         }
     }
-    
+
     private static Integer srcIndex = null;
     private static Integer destIndex = null;
 
@@ -134,9 +138,9 @@ public class ExcelUtil {
      *
      * @param file 文件
      */
-    public void readExcel(File file) {
+    public static void readExcel(File file) {
         try {
-            Map<String, String> map = new HashMap<>();
+
             InputStream inputStream = new FileInputStream(file);
             String fileName = file.getName();
             Workbook wb = null;
@@ -161,20 +165,22 @@ public class ExcelUtil {
             if (srcIndex == null || destIndex == null) {
                 return; // 格式不正确
             }
+            Map<String, String> map = new HashMap<>();
             while (iterator.hasNext()) {
                 Row row = iterator.next();
                 int numberOfCells = row.getPhysicalNumberOfCells();
                 if (numberOfCells >= destIndex && numberOfCells > srcIndex) {
                     Cell cellKey = row.getCell(srcIndex);
                     Cell cellValue = row.getCell(destIndex);
-                    String key = this.getCellValue(cellKey);
-                    String value = this.getCellValue(cellValue);
+                    String key = getCellValue(cellKey);
+                    String value = getCellValue(cellValue);
                     if (!StringUtility.isNullOrEmpty(key) && !StringUtility.isNullOrEmpty(value)) {
                         map.put(key, value);
                         System.out.println(key + " - " + value);
                     }
                 }
             }
+            System.out.println(map);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -265,7 +271,7 @@ public class ExcelUtil {
         }
     }
 
-    private String getCellValue(Cell cell) {
+    private static String getCellValue(Cell cell) {
         String cellValue;
         switch (cell.getCellType()) {
             case Cell.CELL_TYPE_STRING:

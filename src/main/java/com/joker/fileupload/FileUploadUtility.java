@@ -25,7 +25,6 @@ import com.joker.model.Model;
 import com.joker.poi.ExcelUtil;
 import com.joker.staticcommon.StringUtility;
 
-
 /**
  * @author xiangR
  * @date 2017年7月28日上午9:47:11
@@ -183,7 +182,7 @@ public class FileUploadUtility {
         }).collect(Collectors.toList());
 
         List<String> headers = java.util.Arrays.asList("编号", "大模块", "菜单名称", "模块名称", "排序", "状态");
-        ExcelUtil.exportExcelOld("后台模块", headers, dataList);
+        ExcelUtil.exportExcel("后台模块", headers, dataList);
         return null;
     }
 
